@@ -8,6 +8,7 @@ import { NotFoundException } from '@nestjs/common';
 const mockTaskRepository = () => ({
   getTasks: jest.fn(),
   findOne: jest.fn(),
+  createTask: jest.fn(),
 });
 
 const mockUser = {
@@ -70,6 +71,24 @@ describe('TasksService', () => {
       expect(tasksService.getTaskById(1, mockUser)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('createTask', () => {
+    it('calls TasksRepository.createTask', async () => {
+      taskRepository.createTask.mockResolvedValue('someTask');
+
+      expect(taskRepository.createTask).not.toHaveBeenCalled();
+      const createTaskDto = {
+        title: 'test task',
+        description: 'test desc',
+      };
+      const result = await tasksService.createTask(createTaskDto, mockUser);
+      expect(taskRepository.createTask).toHaveBeenCalledWith(
+        createTaskDto,
+        mockUser,
+      );
+      expect(result).toEqual('someTask');
     });
   });
 });
